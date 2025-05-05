@@ -27,4 +27,14 @@ source ~/.zshrc
 - TUI experience with file I/O
 - Simple to use, like scratch paper for trees
 
+### Example Tree 
+```
+Root
+├──Notebooks
+├─── Granite4.0.ipynb
+│  └─── Transformers notebook for running tiny granite 4.0.
+└─── DirectoryGuide.md
+   └─── Markdown tree of the folder (This file!)
+```
+
 Inspired entirley by https://tree.nathanfriend.com. Wanted a local, TUI tool that served the same purpose. Lots of this project was generated with GPT 4.1 using copilot in vscode with mcp. I *do not* take full credit for the code in this repository. 
