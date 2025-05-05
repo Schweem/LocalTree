@@ -9,27 +9,13 @@ import (
 	"github.com/rivo/tview"
 )
 
-func main() {
-	app := tview.NewApplication()
-
-	parentMap := make(map[*tview.TreeNode]*tview.TreeNode)
-
-	rootNode := tview.NewTreeNode("Root").SetColor(tview.Styles.PrimaryTextColor)
-	child1 := tview.NewTreeNode("Child 1")
-	child2 := tview.NewTreeNode("Child 2")
-	rootNode.AddChild(child1)
-	rootNode.AddChild(child2)
-	parentMap[child1] = rootNode
-	parentMap[child2] = rootNode
-
-	tree := tview.NewTreeView().SetRoot(rootNode).SetCurrentNode(rootNode)
-
-	// Set background color to terminal default
-	tree.SetBackgroundColor(tcell.ColorDefault)
-
+func setupUI(app *tview.Application, rootNode *tview.TreeNode, parentMap map[*tview.TreeNode]*tview.TreeNode) {
 	footer := tview.NewTextView().SetText("Enter: Add Child  |  Space: Expand/Collapse  |  r: Rename  |  d: Delete  |  Ctrl+S: Save  |  Ctrl+O: Open  |  Ctrl+Q: Quit").SetTextAlign(tview.AlignCenter)
 	footer.SetBackgroundColor(tcell.ColorDefault)
 	footer.SetDynamicColors(true)
+
+	tree := tview.NewTreeView().SetRoot(rootNode).SetCurrentNode(rootNode)
+	tree.SetBackgroundColor(tcell.ColorDefault)
 
 	layout := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(tree, 0, 1, true).
@@ -37,38 +23,7 @@ func main() {
 
 	var lastSavedFilename string
 
-	// Check for filename argument
-	if len(os.Args) > 1 {
-		filename := os.Args[1]
-		file, err := os.Open(filename)
-		if err == nil {
-			scanner := bufio.NewScanner(file)
-			var lines []string
-			inCodeBlock := false
-			for scanner.Scan() {
-				line := scanner.Text()
-				if strings.HasPrefix(line, "```") {
-					inCodeBlock = !inCodeBlock
-					continue
-				}
-				if inCodeBlock {
-					lines = append(lines, line)
-				}
-			}
-			file.Close()
-			if len(lines) > 0 {
-				newRoot, newParentMap := parseTreeFromText(lines)
-				rootNode.ClearChildren()
-				for _, child := range newRoot.GetChildren() {
-					rootNode.AddChild(child)
-				}
-				parentMap = newParentMap
-			}
-		}
-	}
-
 	tree.SetSelectedFunc(func(node *tview.TreeNode) {
-		// Always add a new child to the selected node
 		newChild := tview.NewTreeNode("New Child")
 		node.AddChild(newChild)
 		parentMap[newChild] = node
@@ -77,7 +32,7 @@ func main() {
 	tree.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		node := tree.GetCurrentNode()
 		switch event.Rune() {
-		case 'r': // Rename node
+		case 'r':
 			input := tview.NewInputField().SetLabel("Rename: ").SetText(node.GetText())
 			input.SetBackgroundColor(tcell.ColorDefault)
 			input.SetDoneFunc(func(key tcell.Key) {
@@ -90,7 +45,7 @@ func main() {
 				AddItem(input, 3, 1, true)
 			app.SetRoot(modal, true).SetFocus(input)
 			return nil
-		case 'd': // Delete node (not root)
+		case 'd':
 			if node != rootNode {
 				parent := parentMap[node]
 				if parent != nil {
@@ -99,10 +54,10 @@ func main() {
 				}
 			}
 			return nil
-		case ' ': // Space toggles expand/collapse
+		case ' ':
 			node.SetExpanded(!node.IsExpanded())
 			return nil
-		case 'q': // Quit
+		case 'q':
 			app.Stop()
 			return nil
 		}
