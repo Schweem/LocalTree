@@ -1,7 +1,7 @@
 # Local Tree 
 **Simple CLI tool for generating trees for your ideas or project structure.**
 
-With the rise of MCP and agentic AI I have been exposed to an increasing number of project file structure trees. As the result of this, I have found myself imagining more things in this format and found a want for a tool like this. 
+With the rise of MCP and agentic AI I have been exposed to an increasing number of project file structure trees. As the result of this, I have found myself imagining more things in this format and found a want for a tool like this. Sorry the instructions are written like I'm a mac user, I'm a mac user. 
 
 ## Usage 
 1. Clone the repository `notongithub.comyetlol`
@@ -9,7 +9,7 @@ With the rise of MCP and agentic AI I have been exposed to an increasing number 
     - `go build -o localtree`
 3. Invoke with `localtree` optionally, provide a file as an argument. 
 
-## Add to PATH (User Profile Update)
+## Add to PATH 
 
 To use `localtree` from anywhere in your terminal, add its directory to your PATH.  
 If you built the binary in your project folder, run:
