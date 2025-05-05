@@ -1,0 +1,5 @@
+# Ignore built file 
+localtree
+
+# mac files
+.DS_Store
