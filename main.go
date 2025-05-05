@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
@@ -23,7 +25,7 @@ func main() {
 	// Set background color to terminal default
 	tree.SetBackgroundColor(tcell.ColorDefault)
 
-	footer := tview.NewTextView().SetText("Enter: Add Child  |  Space: Expand/Collapse  |  r: Rename  |  d: Delete  |  q: Quit").SetTextAlign(tview.AlignCenter)
+	footer := tview.NewTextView().SetText("Enter: Add Child  |  Space: Expand/Collapse  |  r: Rename  |  d: Delete  |  Ctrl+S: Save  |  q: Quit").SetTextAlign(tview.AlignCenter)
 	footer.SetBackgroundColor(tcell.ColorDefault)
 	footer.SetDynamicColors(true)
 
@@ -70,10 +72,76 @@ func main() {
 			app.Stop()
 			return nil
 		}
+		if event.Key() == tcell.KeyCtrlS {
+			// Save tree as a Markdown code block with tree-drawing characters
+			treeText := renderTreeAsText(rootNode, "", true)
+			md := "```text\n" + treeText + "```\n"
+			file, err := os.Create("tree.md")
+			if err == nil {
+				file.WriteString(md)
+				file.Close()
+				footer.SetText("[green]Tree saved to tree.md[-]  |  Enter: Add Child  |  Space: Expand/Collapse  |  r: Rename  |  d: Delete  |  Ctrl+S: Save  |  q: Quit")
+				go func() {
+					app.QueueUpdateDraw(func() {
+						footer.SetText("Enter: Add Child  |  Space: Expand/Collapse  |  r: Rename  |  d: Delete  |  Ctrl+S: Save  |  q: Quit")
+					})
+				}()
+			}
+			return nil
+		}
 		return event
 	})
 
 	if err := app.SetRoot(layout, true).Run(); err != nil {
 		panic(err)
 	}
+}
+
+// Helper to serialize the tree as Markdown
+func serializeTreeMarkdown(node *tview.TreeNode, depth int) string {
+	indent := ""
+	for i := 0; i < depth; i++ {
+		indent += "  "
+	}
+	md := indent + "- " + node.GetText() + "\n"
+	for _, child := range node.GetChildren() {
+		md += serializeTreeMarkdown(child, depth+1)
+	}
+	return md
+}
+
+// Render the tree as text with tree-drawing characters
+func renderTreeAsText(node *tview.TreeNode, prefix string, isRoot bool) string {
+	var result string
+	if isRoot {
+		result += node.GetText() + "\n"
+		children := node.GetChildren()
+		n := len(children)
+		for i, child := range children {
+			var branch string
+			if i == n-1 {
+				branch = "└── "
+			} else {
+				branch = "├── "
+			}
+			result += branch + child.GetText() + "\n"
+			result += renderTreeAsText(child, "    ", false)
+		}
+		return result
+	}
+	children := node.GetChildren()
+	n := len(children)
+	for i, child := range children {
+		var branch, newPrefix string
+		if i == n-1 {
+			branch = prefix + "└── "
+			newPrefix = prefix + "    "
+		} else {
+			branch = prefix + "├── "
+			newPrefix = prefix + "│   "
+		}
+		result += branch + child.GetText() + "\n"
+		result += renderTreeAsText(child, newPrefix, false)
+	}
+	return result
 }
