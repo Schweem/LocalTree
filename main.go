@@ -113,7 +113,7 @@ func main() {
 				input.SetDoneFunc(func(key tcell.Key) {
 					filename := input.GetText()
 					if filename == "" {
-						filename = "tree.md"
+						filename = "tree.md" // Default filename
 					}
 					lastSavedFilename = filename
 					treeText := renderTreeAsText(rootNode, "", true)
