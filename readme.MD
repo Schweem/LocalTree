@@ -4,7 +4,7 @@
 With the rise of MCP and agentic AI I have been exposed to an increasing number of project file structure trees. As the result of this, I have found myself imagining more things in this format and found a want for a tool like this. Sorry the instructions are written like I'm a mac user, I'm a mac user. 
 
 ## Usage 
-1. Clone the repository `notongithub.comyetlol`
+1. Clone the repository `https://github.com/Schweem/LocalTree`
 2. build the project 
     - `go build -o localtree`
 3. Invoke with `localtree` optionally, provide a file as an argument. 
